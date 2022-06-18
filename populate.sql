@@ -110,7 +110,7 @@ create table retalhista(
     tin numeric(9, 0) not null,
     nome varchar(80) not null,
     constraint pk_retalhista primary key(tin),
-    constraint unq_retalhista_nome unique(nome)
+    constraint unq_retalhista_nome unique(nome) -- RI-RE7
 );
 
 create table responsavel_por(
