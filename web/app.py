@@ -49,5 +49,54 @@ def list_category_edit():
         cursor.close()
         dbConn.close()
 
+@app.route('/retailer')
+def list_retailers():
+    dbConn = None
+    cursor = None
+    try:#balance?account_number={{ record[0] }}
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT DISTINCT nome FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin"
+        cursor.execute(query)
+        return render_template("retailer.html", cursor=cursor)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        cursor.close()
+        dbConn.close()
+
+"""
+@app.route('/remove_retailer')
+def list_category_edit():
+    dbConn = None
+    cursor = None
+    try:#balance?account_number={{ record[0] }}
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT DISTINCT nome, nome_cat FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin ORDER BY nome;"
+        cursor.execute(query)
+        return render_template("retailer.html", cursor=cursor)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        cursor.close()
+        dbConn.close()
+
+@app.route('/alter_retailer')
+def list_category_edit():
+    dbConn = None
+    cursor = None
+    try:#balance?account_number={{ record[0] }}
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT DISTINCT nome, nome_cat FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin ORDER BY nome;"
+        cursor.execute(query)
+        return render_template("retailer.html", cursor=cursor)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        cursor.close()
+        dbConn.close()
+"""
 
 CGIHandler().run(app)
