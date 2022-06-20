@@ -20,10 +20,13 @@
                         <tr>
                             <td style="padding-left: 4px; padding-right: 4px">{{record[0]}}</td>
                             <td style="padding-left: 4px; padding-right: 4px; text-align: center">
-                                <a href="remove_retailer?name={{record[0]}}">Remover</a>
+                                <form action="retailer" method="post">
+                                    <input type="hidden" name="retailer_name" value="{{record[0]}}"/>
+                                    <input type="submit" name="remove_button" value="Remover">
+                                </form>
                             </td>
                             <td style="padding-left: 4px; padding-right: 4px; text-align: center">
-                                <a href="alter_retailer?name={{record[0]}}">Remover categoria</a>
+                                <a href="alter_retailer?name={{record[0]}}">Alterar</a>
                             </td>
                         </tr>
                     {% endfor %}

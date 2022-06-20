@@ -1,7 +1,8 @@
 #!/usr/bin/python3
+import re
 from wsgiref.handlers import CGIHandler
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 
 import psycopg2
 import psycopg2.extras
@@ -15,7 +16,6 @@ DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DA
 
 app = Flask(__name__)
 
-
 @app.route('/')
 def list_accounts():
     dbConn = None
@@ -23,8 +23,6 @@ def list_accounts():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # query = "SELECT * FROM categoria;"
-        # cursor.execute(query)
         return render_template("index.html", cursor=cursor)
     except Exception as e:
         return str(e)  # Renders a page with the error.
@@ -49,38 +47,39 @@ def list_category_edit():
         cursor.close()
         dbConn.close()
 
-@app.route('/retailer')
+@app.route('/retailer', methods=["POST", "GET"])
 def list_retailers():
     dbConn = None
     cursor = None
-    try:#balance?account_number={{ record[0] }}
+    try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT DISTINCT nome FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin"
-        cursor.execute(query)
-        return render_template("retailer.html", cursor=cursor)
+        if(request.method == 'POST'):
+            retailer = request.form["retailer_name"]
+            query = """
+            START TRANSACTION;
+            SELECT * INTO t FROM retalhista WHERE nome=%s;
+            DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM t);
+            DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM t);
+            DELETE FROM retalhista WHERE nome IN (SELECT nome FROM t);
+            DROP TABLE t;
+            COMMIT;
+            """
+            cursor.execute(query,(retailer,))
+            return redirect(url_for('list_retailers'))
+        else:
+            query = "SELECT DISTINCT nome FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin;"
+            cursor.execute(query)
+            return render_template("retailer.html", cursor=cursor)
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:
         cursor.close()
         dbConn.close()
 
+CGIHandler().run(app)
+
 """
-@app.route('/remove_retailer')
-def list_category_edit():
-    dbConn = None
-    cursor = None
-    try:#balance?account_number={{ record[0] }}
-        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
-        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT DISTINCT nome, nome_cat FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin ORDER BY nome;"
-        cursor.execute(query)
-        return render_template("retailer.html", cursor=cursor)
-    except Exception as e:
-        return str(e)  # Renders a page with the error.
-    finally:
-        cursor.close()
-        dbConn.close()
 
 @app.route('/alter_retailer')
 def list_category_edit():
