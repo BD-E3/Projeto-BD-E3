@@ -11,10 +11,8 @@ import psycopg2.extras
 DB_HOST = "127.0.0.1"
 DB_USER = "postgres"
 DB_DATABASE = DB_USER
-DB_PASSWORD = "pereirawp2002"
+DB_PASSWORD = "1234"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
-
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -59,23 +57,66 @@ def list_retailers():
         if(request.method == 'POST'):
             retailer = request.form["retailer_name"]
             query = """
-            START TRANSACTION;
-            SELECT * INTO t FROM retalhista WHERE nome=%s;
+            SELECT * INTO t FROM retalhista WHERE nome = %s;
             DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM t);
             DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM t);
             DELETE FROM retalhista WHERE nome IN (SELECT nome FROM t);
             DROP TABLE t;
-            COMMIT;
             """
-            cursor.execute(query,(retailer,))
+            cursor.execute(query, (retailer,))
             return redirect(url_for('list_retailers'))
         else:
-            query = "SELECT DISTINCT nome FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin;"
+            query = "SELECT DISTINCT nome FROM retalhista;"
             cursor.execute(query)
             return render_template("retailer.html", cursor=cursor)
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
+
+@app.route('/alter_retailer', methods=["POST", "GET"])
+def alter_retailer():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if(request.method == 'POST'):
+            nome = request.form['nome']
+
+            if request.form["button"] == "Remover":
+                num_serie = request.form["num_serie"]
+                fabricante = request.form["fabricante"]
+                query = "DELETE FROM responsavel_por WHERE num_serie = %s AND fabricante = %s;"
+                cursor.execute(query, (num_serie, fabricante))
+            
+            if request.form["button"] == "Nova responsabilidade":
+                ivm = request.form["ivm"].split('$')
+                num_serie = ivm[0]
+                fabricante = ivm[1]
+                categoria = request.form["category"]
+                query = "SELECT tin FROM retalhista WHERE retalhista.nome = %s;"
+                cursor.execute(query, (nome,))
+                tin = cursor.fetchall()
+                query = "INSERT INTO responsavel_por VALUES (%s, %s, %s, %s);"
+                cursor.execute(query, (categoria, tin[0][0], num_serie, fabricante))
+
+            return redirect(url_for('alter_retailer', name=nome))
+        else:
+            query = "SELECT nome_cat, num_serie, fabricante FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin IN (SELECT tin FROM retalhista WHERE nome = %s) ORDER BY nome_cat;"
+            cursor.execute(query, (request.args.get("name"),))
+            resp = cursor.fetchall()
+            cursor.execute("SELECT * FROM IVM WHERE (num_serie, fabricante) NOT IN (SELECT num_serie, fabricante FROM responsavel_por);")
+            ivms = cursor.fetchall()
+            cursor.execute("SELECT nome FROM categoria ORDER BY nome;")
+            categorias = cursor.fetchall()
+            return render_template("alter_retailer.html", cursor=resp, ivms=ivms, categorias=categorias, params=request.args)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        dbConn.commit()
         cursor.close()
         dbConn.close()
 
@@ -87,8 +128,7 @@ def update_category():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        category = request.arg[1]
-        print(category, 'aaaaaaaaaaaaaaaaaaaaaa')
+        category = request.args[0]
         query = """
             with recursive remove_super_category(super_categoria, categoria) as ( 
                 select super_categoria, categoria from tem_outra t_o 
@@ -99,10 +139,8 @@ def update_category():
             ) 
             delete from tem_outra where super_categoria in (select categoria from remove_super_category) or 
                                 categoria in (select categoria from remove_super_category);"""
-        app.logger.info('teste')
 
-        data = category
-        cursor.execute(query, data)
+        cursor.execute(query, (category,))
         return query
     except Exception as e:
         return str(e)
@@ -110,27 +148,5 @@ def update_category():
         dbConn.commit()
         cursor.close()
         dbConn.close()
-
-
-CGIHandler().run(app)
-
-"""
-
-@app.route('/alter_retailer')
-def list_category_edit():
-    dbConn = None
-    cursor = None
-    try:#balance?account_number={{ record[0] }}
-        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
-        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT DISTINCT nome, nome_cat FROM responsavel_por NATURAL JOIN retalhista WHERE responsavel_por.tin = retalhista.tin ORDER BY nome;"
-        cursor.execute(query)
-        return render_template("retailer.html", cursor=cursor)
-    except Exception as e:
-        return str(e)  # Renders a page with the error.
-    finally:
-        cursor.close()
-        dbConn.close()
-"""
 
 CGIHandler().run(app)

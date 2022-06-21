@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt">
+    <head>
+        <meta charset="UTF-8">
+        <title>Todas as categorias</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    </head>
+    <body style="padding:20px">
+        <h3>Alterar responsabilidades do retalhista {{ params.get("name") }}</h3>
+        <div style="display: flex">
+            <div style="padding-right: 50px">
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center">Responsavel por</th>
+                            <th style="text-align: center">No. IVM</th>
+                            <th style="text-align: center">Fabricante</th>
+                            <th style="text-align: center">Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in cursor %}
+                            <tr>
+                                <td style="padding-left: 4px; padding-right: 4px">{{record[0]}}</td>
+                                <td style="padding-left: 4px; padding-right: 4px">{{record[1]}}</td>
+                                <td style="padding-left: 4px; padding-right: 4px">{{record[2]}}</td>
+                                <td style="padding-left: 4px; padding-right: 4px">
+                                    <form action="alter_retailer" method="post">
+                                        <input type="hidden" name="num_serie" value="{{record[1]}}"/>
+                                        <input type="hidden" name="fabricante" value="{{record[2]}}"/>
+                                        <input type="hidden" name="nome" value="{{params.get('name')}}"/>
+                                        <input type="submit" name="button" value="Remover">
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <form action="alter_retailer" method="post">
+                    <input type="hidden" name="nome" value="{{params.get('name')}}"/>
+                    <select name="ivm" required>
+                        <option value="none" selected disabled hidden>IVM</option>
+                        {% for ivm in ivms %}
+                            <option value="{{ivm[0] + '$' + ivm[1]}}">{{ivm[0] + ' - ' + ivm[1]}}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="category" required>
+                        <option value="none" selected disabled hidden>Categoria</option>
+                        {% for categoria in categorias %}
+                            <option value="{{categoria[0]}}">{{categoria[0]}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" name="button" value="Nova responsabilidade"/>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
