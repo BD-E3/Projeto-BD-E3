@@ -42,12 +42,44 @@ having max(er.tin) = min(er.ean);
 
 
 -- apagar depois
-
-with recursive remove_super_category(super_categoria, categoria) as (
-    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = 'Compal' or t_o.categoria = 'Compal'
+start transaction;
+drop table if exists t;
+with recursive remove_category(super_categoria, categoria) as (
+    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = 'Padaria' or t_o.categoria = 'Padaria'
     union all
     select t_o.super_categoria, t_o.categoria from tem_outra t_o
-        inner join remove_super_category rsc on rsc.categoria = t_o.super_categoria
+        inner join remove_category rsc on rsc.categoria = t_o.super_categoria
 )
-delete from tem_outra where super_categoria in (select categoria from remove_super_category) or
-                            categoria in (select categoria from remove_super_category);
+--select * into t from remove_category;
+
+select * into t from (
+    (select super_categoria as cat from remove_category)
+      union
+    (select categoria as cat from remove_category)
+) a;
+
+
+delete from tem_outra where super_categoria in (select cat from t) or
+                            categoria in (select cat from t);
+delete from super_categoria where nome in (select cat from t);
+delete from categoria_simples where nome in (select cat from t);
+commit;
+
+
+
+
+
+
+
+
+---delete from produto where cat in (select categoria from t) or
+---                            cat in (select super_categoria from t);
+--delete from planograma
+--delete from prateleira where nome in (select categoria from t) or
+ --                           nome in (select super_categoria from t);
+--
+--delete from categoria where nome in (select categoria from t);
+--delete from categoria_simples where nome in (select categoria from t);
+
+drop table t;
+commit;

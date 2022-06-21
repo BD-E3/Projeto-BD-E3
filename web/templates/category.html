@@ -18,9 +18,12 @@
                     {% for record in cursor %}
                         <tr>
                             <td style="padding-left: 4px; padding-right: 4px">{{record[0]}}</td>
-                            <td style="padding-left: 4px; padding-right: 4px"><a href="update_category?category={{ record[0] }}">
-                                Remover categoria
-                            </a></td>
+                            <td style="padding-left: 4px; padding-right: 4px">
+                                <form action="category" method="post">
+                                    <input type="hidden" name="category_name" value="{{ record[0] }}"/>
+                                    <input type="submit" name="remove_button" value="Remover">
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

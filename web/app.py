@@ -11,10 +11,11 @@ import psycopg2.extras
 DB_HOST = "127.0.0.1"
 DB_USER = "postgres"
 DB_DATABASE = DB_USER
-DB_PASSWORD = "1234"
+DB_PASSWORD = "pereirawp2002"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def list_accounts():
@@ -31,21 +32,52 @@ def list_accounts():
         dbConn.close()
 
 
-@app.route('/category')
-def list_category_edit():
+@app.route('/category', methods=["POST", "GET"])
+def list_category():
     dbConn = None
     cursor = None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT * FROM categoria;"
-        cursor.execute(query)
-        return render_template("category.html", cursor=cursor)
+        if request.method == "POST":
+            category = request.form["category_name"]
+            #print(category)
+            query = """
+                start transaction;
+                drop table if exists t;
+                with recursive remove_category(super_categoria, categoria) as (
+                    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = %s or t_o.categoria = %s
+                    union all
+                    select t_o.super_categoria, t_o.categoria from tem_outra t_o
+                        inner join remove_category rsc on rsc.categoria = t_o.super_categoria
+                )
+                select * into t from (
+                    (select super_categoria as cat from remove_category)
+                      union
+                    (select categoria as cat from remove_category)
+                ) a;
+     
+                delete from tem_outra where super_categoria in (select cat from t) or
+                                            categoria in (select cat from t);
+                delete from super_categoria where nome in (select cat from t);
+                delete from categoria_simples where nome in (select cat from t);
+                commit;
+            """
+            #data = (category, category)
+            cursor.execute(query, (category, category,))
+            return redirect(url_for('list_category'))
+        else:
+            query = "SELECT * FROM categoria;"
+            cursor.execute(query)
+            return render_template("category.html", cursor=cursor)
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:
+        dbConn.commit()
         cursor.close()
         dbConn.close()
+
+
 
 @app.route('/retailer', methods=["POST", "GET"])
 def list_retailers():
@@ -120,33 +152,5 @@ def alter_retailer():
         cursor.close()
         dbConn.close()
 
-@app.route('/update_category')
-def update_category():
-    dbConn = None
-    cursor = None
-    try:
-        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
-        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-        category = request.args[0]
-        query = """
-            with recursive remove_super_category(super_categoria, categoria) as ( 
-                select super_categoria, categoria from tem_outra t_o 
-                    where t_o.super_categoria = %s or t_o.categoria = %s 
-                union all 
-                select t_o.super_categoria, t_o.categoria from tem_outra t_o 
-                    inner join remove_super_category rsc on rsc.categoria = t_o.super_categoria 
-            ) 
-            delete from tem_outra where super_categoria in (select categoria from remove_super_category) or 
-                                categoria in (select categoria from remove_super_category);"""
-
-        cursor.execute(query, (category,))
-        return query
-    except Exception as e:
-        return str(e)
-    finally:
-        dbConn.commit()
-        cursor.close()
-        dbConn.close()
 
 CGIHandler().run(app)
