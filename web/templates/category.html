@@ -10,15 +10,15 @@
             <table border="1">
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>Remover</th>
+                        <th style="text-align: center">Nome</th>
+                        <th style="text-align: center">Remover</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in cursor %}
                         <tr>
                             <td style="padding-left: 4px; padding-right: 4px">{{record[0]}}</td>
-                            <td style="padding-left: 4px; padding-right: 4px"><a href="remove?category_name={{record[0]}}">
+                            <td style="padding-left: 4px; padding-right: 4px"><a href="update_category?category={{ record[0] }}">
                                 Remover categoria
                             </a></td>
                         </tr>

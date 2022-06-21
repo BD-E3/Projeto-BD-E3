@@ -147,7 +147,26 @@ values
     ('Sem gluten'),
     ('Congelado'),
     ('Marisco'),
-    ('Gelado');
+    ('Gelado'),
+
+    ('Peixe'),
+    ('Batata'),
+    ('Fruta'),
+
+    ('Vegetal'),
+    ('Cenoura'),
+    ('Banana'),
+    ('Ananas'),
+    ('Bolachas'),
+    ('Cereais'),
+
+    ('Carne'),
+    ('Porco'),
+    ('Bifana'),
+    ('Chocolate'),
+    ('Agua'),
+    ('Sumos'),
+    ('Compal');
 
 insert into categoria_simples
     (nome)
@@ -155,14 +174,30 @@ values
     ('Integral'),
     ('Sem gluten'),
     ('Marisco'),
-    ('Gelado');
+    ('Gelado'),
+    ('Peixe'),
+    ('Batata'),
+    ('Cenoura'),
+    ('Banana'),
+    ('Ananas'),
+    ('Bolachas'),
+    ('Cereais'),
+    ('Bifana'),
+    ('Chocolate'),
+    ('Agua'),
+    ('Compal');
 
 insert into super_categoria
     (nome)
 values
     ('Padaria'),
     ('Pao'),
-    ('Congelado');
+    ('Congelado'),
+    ('Fruta'),
+    ('Vegetal'),
+    ('Carne'),
+    ('Porco'),
+    ('Sumos');
 
 insert into tem_outra
     (super_categoria, categoria)
@@ -171,7 +206,14 @@ values
     ('Pao', 'Integral'),
     ('Pao', 'Sem gluten'),
     ('Congelado', 'Marisco'),
-    ('Congelado', 'Gelado');
+    ('Congelado', 'Gelado'),
+    ('Carne', 'Porco'),
+    ('Porco', 'Bifana'),
+    ('Fruta', 'Banana'),
+    ('Fruta', 'Ananas'),
+    ('Vegetal', 'Cenoura'),
+    ('Vegetal', 'Batata'),
+    ('Sumos', 'Compal');
 
 insert into produto
     (ean, cat, descr) -- cat e a seccao onde sao vendidas - toume a cagar

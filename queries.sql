@@ -39,3 +39,15 @@ select er.ean
 from evento_reposicao er
 group by er.ean
 having max(er.tin) = min(er.ean);
+
+
+-- apagar depois
+
+with recursive remove_super_category(super_categoria, categoria) as (
+    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = 'Compal' or t_o.categoria = 'Compal'
+    union all
+    select t_o.super_categoria, t_o.categoria from tem_outra t_o
+        inner join remove_super_category rsc on rsc.categoria = t_o.super_categoria
+)
+delete from tem_outra where super_categoria in (select categoria from remove_super_category) or
+                            categoria in (select categoria from remove_super_category);

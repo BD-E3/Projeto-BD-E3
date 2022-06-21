@@ -11,8 +11,10 @@ import psycopg2.extras
 DB_HOST = "127.0.0.1"
 DB_USER = "postgres"
 DB_DATABASE = DB_USER
-DB_PASSWORD = "password"
+DB_PASSWORD = "pereirawp2002"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -76,6 +78,39 @@ def list_retailers():
     finally:
         cursor.close()
         dbConn.close()
+
+@app.route('/update_category')
+def update_category():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        category = request.arg[1]
+        print(category, 'aaaaaaaaaaaaaaaaaaaaaa')
+        query = """
+            with recursive remove_super_category(super_categoria, categoria) as ( 
+                select super_categoria, categoria from tem_outra t_o 
+                    where t_o.super_categoria = %s or t_o.categoria = %s 
+                union all 
+                select t_o.super_categoria, t_o.categoria from tem_outra t_o 
+                    inner join remove_super_category rsc on rsc.categoria = t_o.super_categoria 
+            ) 
+            delete from tem_outra where super_categoria in (select categoria from remove_super_category) or 
+                                categoria in (select categoria from remove_super_category);"""
+        app.logger.info('teste')
+
+        data = category
+        cursor.execute(query, data)
+        return query
+    except Exception as e:
+        return str(e)
+    finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
+
 
 CGIHandler().run(app)
 
