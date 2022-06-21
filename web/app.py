@@ -51,23 +51,24 @@ def list_category():
                     select t_o.super_categoria, t_o.categoria from tem_outra t_o
                         inner join remove_category rsc on rsc.categoria = t_o.super_categoria
                 )
-                select * into t from (
-                    (select super_categoria as cat from remove_category)
-                      union
-                    (select categoria as cat from remove_category)
-                ) a;
+                select categoria into t from remove_category;
+                insert into t values(%s);
      
-                delete from tem_outra where super_categoria in (select cat from t) or
-                                            categoria in (select cat from t);
-                delete from super_categoria where nome in (select cat from t);
-                delete from categoria_simples where nome in (select cat from t);
+                delete from tem_outra where super_categoria in (select categoria from t) or
+                                            categoria in (select categoria from t);
+                delete from super_categoria where nome in (select categoria from t);
+                delete from categoria_simples where nome in (select categoria from t);
                 commit;
             """
             #data = (category, category)
-            cursor.execute(query, (category, category,))
+            cursor.execute(query, (category, category, category,))
             return redirect(url_for('list_category'))
         else:
-            query = "SELECT * FROM categoria;"
+            query = """ 
+            (SELECT * FROM super_categoria)
+                union
+            (SELECT * FROM categoria_simples)
+            """
             cursor.execute(query)
             return render_template("category.html", cursor=cursor)
     except Exception as e:
