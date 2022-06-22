@@ -53,22 +53,33 @@ def list_category():
                 )
                 select categoria into t from remove_category;
                 insert into t values(%s);
-     
+                
+                delete from responsavel_por where nome_cat in (select * from t);
+                delete from tem_categoria where nome in (select * from t);
                 delete from tem_outra where super_categoria in (select categoria from t) or
                                             categoria in (select categoria from t);
                 delete from super_categoria where nome in (select categoria from t);
                 delete from categoria_simples where nome in (select categoria from t);
+                delete from evento_reposicao er where exists (
+                    select 1 from produto prod where prod.ean = er.ean and exists (
+                        select 1 from categoria cat where cat.nome = %s
+                    )
+                );
+                delete from planograma plan where exists (
+                    select 1 from produto prod where plan.ean = prod.ean and exists (
+                        select 1 from categoria cat where cat.nome = %s
+                    )
+                );
+                delete from produto where cat in (select * from t);
+                delete from prateleira where nome in (select * from t);
+                delete from categoria where nome in (select * from t);
                 commit;
             """
             #data = (category, category)
-            cursor.execute(query, (category, category, category,))
+            cursor.execute(query, (category, category, category, category, category, ))
             return redirect(url_for('list_category'))
         else:
-            query = """ 
-            (SELECT * FROM super_categoria)
-                union
-            (SELECT * FROM categoria_simples)
-            """
+            query = "SELECT * FROM categoria"
             cursor.execute(query)
             return render_template("category.html", cursor=cursor)
     except Exception as e:

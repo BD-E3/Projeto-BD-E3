@@ -41,7 +41,23 @@ group by er.ean
 having max(er.tin) = min(er.ean);
 
 
--- apagar depois
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- TODO apagar depois
 start transaction;
 drop table if exists t;
 with recursive remove_category(super_categoria, categoria) as (
@@ -50,19 +66,44 @@ with recursive remove_category(super_categoria, categoria) as (
     select t_o.super_categoria, t_o.categoria from tem_outra t_o
         inner join remove_category rsc on rsc.categoria = t_o.super_categoria
 )
---select * into t from remove_category;
+select categoria into t from remove_category;
+insert into t values('Padaria');
 
-select * into t from (
-    (select super_categoria as cat from remove_category)
-      union
-    (select categoria as cat from remove_category)
-) a;
+delete from responsavel_por where nome_cat in (select * from t);
+delete from tem_categoria where nome in (select * from t);
+delete from tem_outra where super_categoria in (select categoria from t) or
+                            categoria in (select categoria from t);
+delete from super_categoria where nome in (select categoria from t);
+delete from categoria_simples where nome in (select categoria from t);
+delete from evento_reposicao er where exists (
+    select 1 from produto prod where prod.ean = er.ean and exists (
+        select 1 from categoria cat where cat.nome = 'Padaria'
+    )
+);
+delete from planograma plan where exists (
+    select 1 from produto prod where plan.ean = prod.ean and exists (
+        select 1 from categoria cat where cat.nome = 'Padaria'
+    )
+);
+delete from produto where cat in (select * from t);
+delete from prateleira where nome in (select * from t);
+delete from categoria where nome in (select * from t);
+commit;
+
+
+
+
+
+
+
+
 
 
 delete from tem_outra where super_categoria in (select cat from t) or
                             categoria in (select cat from t);
 delete from super_categoria where nome in (select cat from t);
 delete from categoria_simples where nome in (select cat from t);
+delete from categoria where nome in (select  cat from t);
 commit;
 
 
