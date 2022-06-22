@@ -27,6 +27,7 @@ def list_accounts():
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:
+        dbConn.commit()
         cursor.close()
         dbConn.close()
 
@@ -102,8 +103,6 @@ def list_category():
         dbConn.commit()
         cursor.close()
         dbConn.close()
-
-
 
 @app.route('/retailer', methods=["POST", "GET"])
 def list_retailers():
@@ -198,5 +197,26 @@ def alter_retailer():
         cursor.close()
         dbConn.close()
 
+@app.route('/ivm', methods=["POST", "GET"])
+def list_ivms():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if request.method == 'POST':
+            num_serie = request.form["num_serie"]
+            fabricante = request.form["fabricante"]
+            return redirect(url_for('list_ivms', num_serie=num_serie, fabricante=fabricante))
+        else:
+            query = "SELECT DISTINCT * FROM ivm ORDER BY num_serie;"
+            cursor.execute(query)
+            return render_template("ivm.html", cursor=cursor)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
 
 CGIHandler().run(app)
