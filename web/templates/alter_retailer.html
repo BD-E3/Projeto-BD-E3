@@ -41,13 +41,13 @@
                 <form action="alter_retailer" method="post">
                     <input type="hidden" name="nome" value="{{params.get('name')}}"/>
                     <select name="ivm" required>
-                        <option value="none" selected disabled hidden>IVM</option>
+                        <option value="none" selected hidden>IVM</option>
                         {% for ivm in ivms %}
                             <option value="{{ivm[0] + '$' + ivm[1]}}">{{ivm[0] + ' - ' + ivm[1]}}</option>
                         {% endfor %}
                     </select>
                     <select name="category" required>
-                        <option value="none" selected disabled hidden>Categoria</option>
+                        <option value="none" selected hidden>Categoria</option>
                         {% for categoria in categorias %}
                             <option value="{{categoria[0]}}">{{categoria[0]}}</option>
                         {% endfor %}

@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import re
 from wsgiref.handlers import CGIHandler
 from flask import Flask
 from flask import render_template, request, redirect, url_for
@@ -11,7 +10,7 @@ import psycopg2.extras
 DB_HOST = "127.0.0.1"
 DB_USER = "postgres"
 DB_DATABASE = DB_USER
-DB_PASSWORD = "pereirawp2002"
+DB_PASSWORD = "1234"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 app = Flask(__name__)
@@ -101,11 +100,11 @@ def list_retailers():
         if(request.method == 'POST'):
             retailer = request.form["retailer_name"]
             query = """
-            SELECT * INTO t FROM retalhista WHERE nome = %s;
-            DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM t);
-            DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM t);
-            DELETE FROM retalhista WHERE nome IN (SELECT nome FROM t);
-            DROP TABLE t;
+            SELECT * INTO tb FROM retalhista WHERE nome = %s;
+            DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM tb);
+            DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM tb);
+            DELETE FROM retalhista WHERE nome IN (SELECT nome FROM tb);
+            DROP TABLE tb;
             """
             cursor.execute(query, (retailer,))
             return redirect(url_for('list_retailers'))
@@ -137,10 +136,14 @@ def alter_retailer():
                 cursor.execute(query, (num_serie, fabricante))
             
             if request.form["button"] == "Nova responsabilidade":
-                ivm = request.form["ivm"].split('$')
+                ivm = request.form["ivm"]
+                categoria = request.form["category"]
+                if ivm == "none" or categoria == "none":
+                    return redirect(url_for('alter_retailer', name=nome))
+                ivm = ivm.split('$')
                 num_serie = ivm[0]
                 fabricante = ivm[1]
-                categoria = request.form["category"]
+    
                 query = "SELECT tin FROM retalhista WHERE retalhista.nome = %s;"
                 cursor.execute(query, (nome,))
                 tin = cursor.fetchall()
