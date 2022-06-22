@@ -1,4 +1,4 @@
-drop view Vendas;
+drop view if exists Vendas;
 
 -- ean e cat: correspondem às chaves primárias das relações produto e categoria, respectivamente
 -- ano, trimestre, mes, dia_mes, dia_semana: atributos derivados do atributo instante

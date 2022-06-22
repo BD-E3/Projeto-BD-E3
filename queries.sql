@@ -75,14 +75,33 @@ delete from tem_outra where super_categoria in (select categoria from t) or
                             categoria in (select categoria from t);
 delete from super_categoria where nome in (select categoria from t);
 delete from categoria_simples where nome in (select categoria from t);
-delete from evento_reposicao er where exists (
-    select 1 from produto prod where prod.ean = er.ean and exists (
-        select 1 from categoria cat where cat.nome = 'Padaria'
+
+delete from evento_reposicao er where er.ean in (
+    select ean from planograma plan where plan.ean = er.ean and ean in (
+        select ean from produto prod where prod.ean = plan.ean and cat in (
+            select nome from categoria cat where cat.nome in (select * from t)
+        )
     )
 );
-delete from planograma plan where exists (
-    select 1 from produto prod where plan.ean = prod.ean and exists (
-        select 1 from categoria cat where cat.nome = 'Padaria'
+delete from evento_reposicao er where er.ean in (
+    select ean from planograma plan where plan.ean = er.ean and ean in (
+        select ean from prateleira prat where prat.num_serie = plan.num_serie and nome in (
+            select nome from categoria cat where cat.nome in (select * from t)
+        )
+    )
+);
+delete from planograma plan where ean in (
+    select ean from produto prod where plan.ean = prod.ean and cat in (
+        select nome from categoria cat where cat.nome in (select * from t)
+    )
+);
+delete from planograma plan where num_serie in (
+    select num_serie from prateleira prat where
+            plan.num_serie = prat.num_serie and
+            plan.nro = prat.nro and
+            plan.fabricante = prat.fabricante and nome in (
+            --(nro, num_serie, fabricante) = (plan.nro, plan.num_serie, plan.fabricante) and nome in (
+        select nome from categoria cat where cat.nome in (select * from t)
     )
 );
 delete from produto where cat in (select * from t);
@@ -96,31 +115,3 @@ commit;
 
 
 
-
-
-
-delete from tem_outra where super_categoria in (select cat from t) or
-                            categoria in (select cat from t);
-delete from super_categoria where nome in (select cat from t);
-delete from categoria_simples where nome in (select cat from t);
-delete from categoria where nome in (select  cat from t);
-commit;
-
-
-
-
-
-
-
-
----delete from produto where cat in (select categoria from t) or
----                            cat in (select super_categoria from t);
---delete from planograma
---delete from prateleira where nome in (select categoria from t) or
- --                           nome in (select super_categoria from t);
---
---delete from categoria where nome in (select categoria from t);
---delete from categoria_simples where nome in (select categoria from t);
-
-drop table t;
-commit;

@@ -62,14 +62,33 @@ def list_category():
                                                 categoria in (select categoria from t);
                     delete from super_categoria where nome in (select categoria from t);
                     delete from categoria_simples where nome in (select categoria from t);
-                    delete from evento_reposicao er where exists (
-                        select 1 from produto prod where prod.ean = er.ean and exists (
-                            select 1 from categoria cat where cat.nome = %s
+                    
+                    delete from evento_reposicao er where er.ean in (
+                        select ean from planograma plan where plan.ean = er.ean and ean in (
+                            select ean from produto prod where prod.ean = plan.ean and cat in (
+                                select nome from categoria cat where cat.nome in (select * from t)
+                            )
                         )
                     );
-                    delete from planograma plan where exists (
-                        select 1 from produto prod where plan.ean = prod.ean and exists (
-                            select 1 from categoria cat where cat.nome = %s
+                    delete from evento_reposicao er where er.ean in (
+                        select ean from planograma plan where plan.ean = er.ean and ean in (
+                            select ean from prateleira prat where prat.num_serie = plan.num_serie and nome in (
+                                select nome from categoria cat where cat.nome in (select * from t)
+                            )
+                        )
+                    );
+                    delete from planograma plan where ean in (
+                        select ean from produto prod where plan.ean = prod.ean and cat in (
+                            select nome from categoria cat where cat.nome in (select * from t)
+                        )
+                    );
+                    delete from planograma plan where num_serie in (
+                        select num_serie from prateleira prat where
+                                plan.num_serie = prat.num_serie and
+                                plan.nro = prat.nro and
+                                plan.fabricante = prat.fabricante and nome in (
+                                --(nro, num_serie, fabricante) = (plan.nro, plan.num_serie, plan.fabricante) and nome in (
+                            select nome from categoria cat where cat.nome in (select * from t)
                         )
                     );
                     delete from produto where cat in (select * from t);
@@ -78,7 +97,7 @@ def list_category():
                     commit;
                 """
                 #data = (category, category)
-                cursor.execute(query, (category, category, category, category, category, ))
+                cursor.execute(query, (category, category, category, ))
                 return redirect(url_for('list_category', input_category=False))
 
             if request.form["button"] == "Adicionar":
