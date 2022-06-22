@@ -21,11 +21,31 @@
                             <td style="padding-left: 4px; padding-right: 4px">
                                 <form action="category" method="post">
                                     <input type="hidden" name="category_name" value="{{ record[0] }}"/>
-                                    <input type="submit" name="remove_button" value="Remover">
+                                    <input type="submit" name="button" value="Remover">
                                 </form>
                             </td>
                         </tr>
                     {% endfor %}
+
+                    {% if not input_category %}
+                    <tr>
+                        <td style="padding-left: 4px; padding-right: 4px; padding-top: 4px; text-align: center" colspan = 3>
+                            <form action="category" method="post">
+                                <input type="submit" name="button" value="Adicionar">
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
+                            <form action="category" method="post">
+                                <p>Nome: <input type="text" name="new_category"/></p>
+                                <p><input type="submit" name="button" value="Nova Categoria"/></p>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+
                 </tbody>
             </table>
         {% else %}

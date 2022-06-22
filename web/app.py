@@ -39,48 +39,63 @@ def list_category():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.method == "POST":
-            category = request.form["category_name"]
-            #print(category)
-            query = """
-                start transaction;
-                drop table if exists t;
-                with recursive remove_category(super_categoria, categoria) as (
-                    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = %s or t_o.categoria = %s
-                    union all
-                    select t_o.super_categoria, t_o.categoria from tem_outra t_o
-                        inner join remove_category rsc on rsc.categoria = t_o.super_categoria
-                )
-                select categoria into t from remove_category;
-                insert into t values(%s);
-                
-                delete from responsavel_por where nome_cat in (select * from t);
-                delete from tem_categoria where nome in (select * from t);
-                delete from tem_outra where super_categoria in (select categoria from t) or
-                                            categoria in (select categoria from t);
-                delete from super_categoria where nome in (select categoria from t);
-                delete from categoria_simples where nome in (select categoria from t);
-                delete from evento_reposicao er where exists (
-                    select 1 from produto prod where prod.ean = er.ean and exists (
-                        select 1 from categoria cat where cat.nome = %s
+
+            if request.form["button"] == "Remover":
+                category = request.form["category_name"]
+                #print(category)
+                query = """
+                    start transaction;
+                    drop table if exists t;
+                    with recursive remove_category(super_categoria, categoria) as (
+                        select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = %s or t_o.categoria = %s
+                        union all
+                        select t_o.super_categoria, t_o.categoria from tem_outra t_o
+                            inner join remove_category rsc on rsc.categoria = t_o.super_categoria
                     )
-                );
-                delete from planograma plan where exists (
-                    select 1 from produto prod where plan.ean = prod.ean and exists (
-                        select 1 from categoria cat where cat.nome = %s
-                    )
-                );
-                delete from produto where cat in (select * from t);
-                delete from prateleira where nome in (select * from t);
-                delete from categoria where nome in (select * from t);
-                commit;
-            """
-            #data = (category, category)
-            cursor.execute(query, (category, category, category, category, category, ))
-            return redirect(url_for('list_category'))
+                    select categoria into t from remove_category;
+                    insert into t values(%s);
+                    
+                    delete from responsavel_por where nome_cat in (select * from t);
+                    delete from tem_categoria where nome in (select * from t);
+                    delete from tem_outra where super_categoria in (select categoria from t) or
+                                                categoria in (select categoria from t);
+                    delete from super_categoria where nome in (select categoria from t);
+                    delete from categoria_simples where nome in (select categoria from t);
+                    delete from evento_reposicao er where exists (
+                        select 1 from produto prod where prod.ean = er.ean and exists (
+                            select 1 from categoria cat where cat.nome = %s
+                        )
+                    );
+                    delete from planograma plan where exists (
+                        select 1 from produto prod where plan.ean = prod.ean and exists (
+                            select 1 from categoria cat where cat.nome = %s
+                        )
+                    );
+                    delete from produto where cat in (select * from t);
+                    delete from prateleira where nome in (select * from t);
+                    delete from categoria where nome in (select * from t);
+                    commit;
+                """
+                #data = (category, category)
+                cursor.execute(query, (category, category, category, category, category, ))
+                return redirect(url_for('list_category', input_category=False))
+
+            if request.form["button"] == "Adicionar":
+                print("boa")
+                return redirect(url_for('list_category', input_category=True))
+
+            if request.form["button"] == "Nova Categoria":
+                new_category = request.form["new_category"]
+                if new_category == "":
+                    return redirect(url_for('list_category', input_category=True))
+                query = "insert into categoria values (%s)"
+                cursor.execute(query, (new_category,))
+                return redirect(url_for('list_category', input_category=False))
+
         else:
             query = "SELECT * FROM categoria"
             cursor.execute(query)
-            return render_template("category.html", cursor=cursor)
+            return render_template("category.html", cursor=cursor, input_category=request.args.get("input_category"))
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:
