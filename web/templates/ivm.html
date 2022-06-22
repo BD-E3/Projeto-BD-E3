@@ -30,7 +30,57 @@
                     {% endfor %}
                 </tbody>
             </table>
-            
+            {% if num_serie and fabricante %}
+                <h3>IVM: {{num_serie + " - " + fabricante}}</h3>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">EAN</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Capacidade da prateleira</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">No. de serie</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Fabricante</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Instante</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Unidades</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">TIN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if ivm_query %}
+                            {% for q in ivm_query %}
+                                <tr>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[0]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[1]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[2]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[3]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[4]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[5]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[6]}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                <h4>Unidades repostas / categoria</h4>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Categoria</th>
+                            <th style="padding-left: 4px; padding-right: 4px; text-align: center">Unidades</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if ivm_query2 %}
+                            {% for q in ivm_query2 %}
+                                <tr>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[0]}}</td>
+                                    <td style="padding-left: 4px; padding-right: 4px">{{q[1]}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
         {% else %}
             <p> Erro: ao obter dados da base de dados!</p>
         {% endif %}

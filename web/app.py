@@ -130,7 +130,7 @@ def list_retailers():
             if request.form["button"] == "Novo retalhista":
                 retailer = request.form["nome"]
                 tin = request.form["tin"]
-                if retailer == "":
+                if retailer == "" or tin == "":
                     return redirect(url_for('list_retailers', input_retailer=True))
 
                 query = """
@@ -207,7 +207,21 @@ def list_ivms():
         if request.method == 'POST':
             num_serie = request.form["num_serie"]
             fabricante = request.form["fabricante"]
-            return redirect(url_for('list_ivms', num_serie=num_serie, fabricante=fabricante))
+            query = "SELECT * FROM evento_reposicao WHERE num_serie = %s AND fabricante = %s;"
+            cursor.execute(query, (num_serie, fabricante));
+            ivm_query = cursor.fetchall()
+
+            query = """SELECT tem_categoria.nome AS categoria, SUM(evento_reposicao.unidades) 
+                       FROM produto JOIN tem_categoria ON produto.ean = tem_categoria.ean
+                       JOIN evento_reposicao ON produto.ean = evento_reposicao.ean 
+                       WHERE (num_serie, fabricante) = (%s, %s) 
+                       GROUP BY tem_categoria.nome;"""
+            cursor.execute(query, (num_serie, fabricante))
+            ivm_query2 = cursor.fetchall()
+
+            query = "SELECT DISTINCT * FROM ivm ORDER BY num_serie;"
+            cursor.execute(query)
+            return render_template('ivm.html', cursor=cursor, num_serie=num_serie, fabricante=fabricante, ivm_query=ivm_query, ivm_query2=ivm_query2)
         else:
             query = "SELECT DISTINCT * FROM ivm ORDER BY num_serie;"
             cursor.execute(query)
