@@ -97,21 +97,37 @@ def list_retailers():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        if(request.method == 'POST'):
-            retailer = request.form["retailer_name"]
-            query = """
-            SELECT * INTO tb FROM retalhista WHERE nome = %s;
-            DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM tb);
-            DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM tb);
-            DELETE FROM retalhista WHERE nome IN (SELECT nome FROM tb);
-            DROP TABLE tb;
-            """
-            cursor.execute(query, (retailer,))
-            return redirect(url_for('list_retailers'))
+        if request.method == 'POST':
+            if request.form["button"] == "Remover":
+                retailer = request.form["retailer_name"]
+                query = """
+                SELECT * INTO tb FROM retalhista WHERE nome = %s;
+                DELETE FROM evento_reposicao WHERE tin IN (SELECT tin FROM tb);
+                DELETE FROM responsavel_por WHERE tin IN (SELECT tin FROM tb);
+                DELETE FROM retalhista WHERE nome IN (SELECT nome FROM tb);
+                DROP TABLE tb;
+                """
+                cursor.execute(query, (retailer,))
+                return redirect(url_for('list_retailers', input_retailer=False))
+            
+            if request.form["button"] == "Adicionar":
+                return redirect(url_for('list_retailers', input_retailer=True))
+
+            if request.form["button"] == "Novo retalhista":
+                retailer = request.form["nome"]
+                tin = request.form["tin"]
+                if retailer == "":
+                    return redirect(url_for('list_retailers', input_retailer=True))
+
+                query = """
+                INSERT INTO retalhista (nome, tin) VALUES (%s, %s);
+                """
+                cursor.execute(query, (retailer, tin))
+                return redirect(url_for('list_retailers', input_retailer=False))
         else:
             query = "SELECT DISTINCT nome FROM retalhista;"
             cursor.execute(query)
-            return render_template("retailer.html", cursor=cursor)
+            return render_template("retailer.html", cursor=cursor, input_retailer=request.args.get("input_retailer"))
     except Exception as e:
         return str(e)  # Renders a page with the error.
     finally:

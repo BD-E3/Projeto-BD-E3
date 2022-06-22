@@ -22,7 +22,7 @@
                             <td style="padding-left: 4px; padding-right: 4px; text-align: center">
                                 <form action="retailer" method="post">
                                     <input type="hidden" name="retailer_name" value="{{record[0]}}"/>
-                                    <input type="submit" name="remove_button" value="Remover">
+                                    <input type="submit" name="button" value="Remover">
                                 </form>
                             </td>
                             <td style="padding-left: 4px; padding-right: 4px; text-align: center">
@@ -30,11 +30,25 @@
                             </td>
                         </tr>
                     {% endfor %}
+                    {% if not input_retailer %}
                     <tr>
                         <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
-                            <a href="new_retailer">Novo retalhista</a>
+                            <form action="retailer" method="post">
+                                <input type="submit" name="button" value="Adicionar">
+                            </form>
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
+                            <form action="retailer" method="post">
+                                <p>Nome: <input type="text" name="nome"/></p>
+                                <p>TIN: <input type="number" name="tin" min="100000000" max="999999999"></p>
+                                <p><input type="submit" name="button" value="Novo retalhista"/></p>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         {% else %}
