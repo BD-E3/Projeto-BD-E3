@@ -9,11 +9,11 @@ as
     select
         er.ean,
         rp.nome_cat,
-        extract(year from er.instante) as ano,
-        extract(quarter from er.instante) as trimestre,
-        extract(month from er.instante) as mes,
-        extract(day from er.instante) as dia_mes,
-        extract(dow from er.instante) as dia_semana,
+        CAST(extract(year from er.instante) AS INTEGER) as ano,
+        CAST(extract(quarter from er.instante) AS INTEGER) as trimestre,
+        CAST(extract(month from er.instante) AS INTEGER) as mes,
+        CAST(extract(day from er.instante) AS INTEGER) as dia_mes,
+        CAST(extract(dow from er.instante) AS INTEGER) as dia_semana,
         pdr.distrito,
         pdr.concelho,
         er.unidades
