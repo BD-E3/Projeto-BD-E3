@@ -115,3 +115,13 @@ commit;
 
 
 
+
+-- mostrar subcat
+with recursive remove_category(super_categoria, categoria) as (
+    select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = 'Padaria' or t_o.categoria = 'Padaria'
+    union all
+    select t_o.super_categoria, t_o.categoria from tem_outra t_o
+        inner join remove_category rsc on rsc.categoria = t_o.super_categoria
+)
+select distinct categoria from remove_category where categoria != 'Padaria';
+

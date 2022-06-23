@@ -101,7 +101,6 @@ def list_category():
                 return redirect(url_for('list_category', input_category=False))
 
             if request.form["button"] == "Adicionar":
-                print("boa")
                 return redirect(url_for('list_category', input_category=True))
 
             if request.form["button"] == "Nova Categoria":
@@ -122,6 +121,38 @@ def list_category():
         dbConn.commit()
         cursor.close()
         dbConn.close()
+
+
+@app.route('/subcategories', methods=["POST", "GET"])
+def subcategories():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        #print(request.args)
+        if request.method == "GET":
+            category = request.args.get("nome_cat")
+            query = """
+            with recursive remove_category(super_categoria, categoria) as (
+                select super_categoria, categoria from tem_outra t_o where t_o.super_categoria = %s or t_o.categoria = %s
+                union all
+                select t_o.super_categoria, t_o.categoria from tem_outra t_o
+                    inner join remove_category rsc on rsc.categoria = t_o.super_categoria
+            )
+            select distinct categoria from remove_category where categoria != %s
+            """
+            cursor.execute(query, (category, category, category))
+            return render_template("sub_categories.html", cursor=cursor, category=category, params=request.args)
+    except Exception as e:
+        return str(e)  # Renders a page with the error.
+    finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
+
+
+
 
 @app.route('/retailer', methods=["POST", "GET"])
 def list_retailers():
@@ -175,9 +206,9 @@ def alter_retailer():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print(request.args)
         if(request.method == 'POST'):
             nome = request.form['nome']
-
             if request.form["button"] == "Remover":
                 num_serie = request.form["num_serie"]
                 fabricante = request.form["fabricante"]

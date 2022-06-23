@@ -12,6 +12,7 @@
                     <tr>
                         <th style="text-align: center">Nome</th>
                         <th style="text-align: center">Remover</th>
+                        <th style="text-align: center"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,6 +24,9 @@
                                     <input type="hidden" name="category_name" value="{{ record[0] }}"/>
                                     <input type="submit" name="button" value="Remover">
                                 </form>
+                            </td>
+                            <td style="padding-left: 4px; padding-right: 4px; text-align: center">
+                                <a href="subcategories?nome_cat={{record[0]}}">Listar Subcategorias</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -37,8 +41,9 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
+                        <td style="padding-left: 4px; padding-right: 4px; padding-top: 4px; text-align: center" colspan = 3>
                             <form action="category" method="post">
+                                <p>Adicionar nova categoria</p>
                                 <p>Nome: <input type="text" name="new_category"/></p>
                                 <p><input type="submit" name="button" value="Nova Categoria"/></p>
                             </form>
