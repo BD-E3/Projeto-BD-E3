@@ -31,7 +31,6 @@ def list_accounts():
         cursor.close()
         dbConn.close()
 
-
 @app.route('/category', methods=["POST", "GET"])
 def list_category():
     dbConn = None
@@ -94,6 +93,7 @@ def list_category():
                     delete from produto where cat in (select * from t);
                     delete from prateleira where nome in (select * from t);
                     delete from categoria where nome in (select * from t);
+                    drop table if exists t;
                     commit;
                 """
                 #data = (category, category)
@@ -122,7 +122,6 @@ def list_category():
         cursor.close()
         dbConn.close()
 
-
 @app.route('/subcategories', methods=["POST", "GET"])
 def subcategories():
     dbConn = None
@@ -150,9 +149,6 @@ def subcategories():
         dbConn.commit()
         cursor.close()
         dbConn.close()
-
-
-
 
 @app.route('/retailer', methods=["POST", "GET"])
 def list_retailers():
@@ -282,5 +278,6 @@ def list_ivms():
         dbConn.commit()
         cursor.close()
         dbConn.close()
+
 
 CGIHandler().run(app)
