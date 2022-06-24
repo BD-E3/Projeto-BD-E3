@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def list_accounts():
+def home():
     dbConn = None
     cursor = None
     try:
@@ -96,7 +96,6 @@ def list_category():
                     drop table if exists t;
                     commit;
                 """
-                #data = (category, category)
                 cursor.execute(query, (category, category, category, ))
                 return redirect(url_for('list_category', input_category=False))
 
@@ -111,6 +110,8 @@ def list_category():
                 cursor.execute(query, (new_category,))
                 return redirect(url_for('list_category', input_category=False))
 
+            if request.form["button"] == "Voltar":
+                return redirect(url_for('home'))
         else:
             query = "SELECT * FROM categoria"
             cursor.execute(query)
@@ -129,7 +130,6 @@ def subcategories():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        #print(request.args)
         if request.method == "GET":
             category = request.args.get("nome_cat")
             query = """
@@ -158,6 +158,9 @@ def list_retailers():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.method == 'POST':
+            if request.form["button"] == "Voltar":
+                return redirect(url_for('home'))
+
             if request.form["button"] == "Remover":
                 retailer = request.form["retailer_name"]
                 query = """
@@ -185,7 +188,7 @@ def list_retailers():
                 cursor.execute(query, (retailer, tin))
                 return redirect(url_for('list_retailers', input_retailer=False))
         else:
-            query = "SELECT DISTINCT nome FROM retalhista;"
+            query = "SELECT nome, tin FROM retalhista;"
             cursor.execute(query)
             return render_template("retailer.html", cursor=cursor, input_retailer=request.args.get("input_retailer"))
     except Exception as e:
@@ -202,8 +205,10 @@ def alter_retailer():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        print(request.args)
         if(request.method == 'POST'):
+            if request.form["button"] == "Voltar":
+                return redirect(url_for('list_retailers'))
+
             nome = request.form['nome']
             if request.form["button"] == "Remover":
                 num_serie = request.form["num_serie"]
@@ -251,6 +256,9 @@ def list_ivms():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.method == 'POST':
+            if request.form["button"] == "Voltar":
+                return redirect(url_for('home'))
+                
             num_serie = request.form["num_serie"]
             fabricante = request.form["fabricante"]
             query = "SELECT * FROM evento_reposicao WHERE num_serie = %s AND fabricante = %s;"

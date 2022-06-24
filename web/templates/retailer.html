@@ -6,11 +6,15 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body style="padding:20px">
+        <form action="retailer" method="post">
+            <input type="submit" name="button" value="Voltar">
+        </form>
         {% if cursor %}
             <table border="1">
                 <thead>
                     <tr>
                         <th style="padding-left: 4px; padding-right: 4px; text-align: center">Nome</th>
+                        <th style="padding-left: 4px; padding-right: 4px; text-align: center">TIN</th>
                         <th style="padding-left: 4px; padding-right: 4px; text-align: center">Remover retalhista</th>
                         <th style="padding-left: 4px; padding-right: 4px; text-align: center">Gerir responsabilidades</th>
                     </tr>
@@ -19,6 +23,7 @@
                     {% for record in cursor %}
                         <tr>
                             <td style="padding-left: 4px; padding-right: 4px">{{record[0]}}</td>
+                            <td style="padding-left: 4px; padding-right: 4px">{{record[1]}}</td>
                             <td style="padding-left: 4px; padding-right: 4px; text-align: center">
                                 <form action="retailer" method="post">
                                     <input type="hidden" name="retailer_name" value="{{record[0]}}"/>
@@ -32,7 +37,7 @@
                     {% endfor %}
                     {% if not input_retailer %}
                     <tr>
-                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
+                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 4>
                             <form action="retailer" method="post">
                                 <input type="submit" name="button" value="Adicionar">
                             </form>
@@ -40,7 +45,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 3>
+                        <td style="padding-left: 4px; padding-right: 4px; text-align: center" colspan = 4>
                             <form action="retailer" method="post">
                                 <p>Nome: <input type="text" name="nome"/></p>
                                 <p>TIN: <input type="number" name="tin" min="100000000" max="999999999"></p>

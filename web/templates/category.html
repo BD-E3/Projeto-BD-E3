@@ -10,6 +10,9 @@
     <body style="padding:20px">
         {% if cursor %}
             {% block content %}
+            <form action="category" method="post">
+                <input type="submit" name="button" value="Voltar">
+            </form>
             <table border="1" id="data" class="table table-striped">
                 <thead>
                     <tr>

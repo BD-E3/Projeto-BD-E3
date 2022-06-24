@@ -213,13 +213,13 @@ values
     ('Sumos', 'Compal');
 
 insert into produto
-    (ean, cat, descr) -- cat e a seccao onde sao vendidas - toume a cagar
+    (ean, cat, descr)
 values
-    (2115721492019, 'Padaria', 'Pao de Mafra'),
-    (8271348905123, 'Padaria', 'Pao de milho'),
-    (0649152305112, 'Padaria', 'Baguette'),
-    (3251277832424, 'Padaria', 'Pao sem gluten fatiado'),
-    (0129401004126, 'Padaria', 'Pao integral fatiado');
+    (2115721492019, 'Pao', 'Pao de Mafra'),
+    (8271348905123, 'Pao', 'Pao de milho'),
+    (0649152305112, 'Pao', 'Baguette'),
+    (3251277832424, 'Sem gluten', 'Pao sem gluten fatiado'),
+    (0129401004126, 'Integral', 'Pao integral fatiado');
 
 insert into tem_categoria
     (ean, nome)
@@ -260,7 +260,7 @@ values
 insert into prateleira
     (nro, num_serie, fabricante, altura, nome)
 values
-    (10, '21H98798H', 'Tecnico IVMs', 15, 'Marisco'),
+    (10, '21H98798H', 'Tecnico IVMs', 15, 'Pao'),
     (12, '21H98798H', 'Tecnico IVMs', 10, 'Sem gluten'),
     (14, '21H98798H', 'Tecnico IVMs', 10, 'Integral'),
     (14, 'G19H28UH9', 'Tecnico IVMs', 15, 'Congelado'),
@@ -297,14 +297,14 @@ values
 insert into responsavel_por
     (nome_cat, tin, num_serie, fabricante)
 values
-    ('Padaria', 120945109, 'BNS35HRBNFBF18', 'IVMs da China'),
+    ('Integral', 120945109, 'BNS35HRBNFBF18', 'IVMs da China'),
     ('Pao', 120945109, 'ADMVCNAS8', 'Tecnico IVMs'),
-    ('Pao', 120945109, 'A890SHGH0SAHHD', 'IVMs da China'),
-    ('Pao', 120945109, 'XCVBNSBCICAS8A', 'IVMs da China'),
+    ('Sem gluten', 120945109, 'A890SHGH0SAHHD', 'IVMs da China'),
+    ('Sem gluten', 120945109, 'XCVBNSBCICAS8A', 'IVMs da China'),
     --('Integral', 120945109, '21H98798H', 'Tecnico IVMs'),
     --('Integral', 120945109, 'BNS35HRBNFBF18', 'IVMs da China'),
-    ('Sem gluten', 228381278, '21H98798H', 'Tecnico IVMs'),
-    ('Congelado', 120945109, 'G19H28UH9', 'Tecnico IVMs');
+    ('Pao', 228381278, '21H98798H', 'Tecnico IVMs'),
+    ('Pao', 120945109, 'G19H28UH9', 'Tecnico IVMs');
     --('Congelado', 120945109, 'ADMVCNAS8', 'Tecnico IVMs'),
     --('Marisco', 228381278, '21H98798H', 'Tecnico IVMs'),
     --('Gelado', 228381278, 'A890SHGH0SAHHD', 'IVMs da China');
