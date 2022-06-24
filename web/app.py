@@ -10,7 +10,7 @@ import psycopg2.extras
 DB_HOST = "127.0.0.1"
 DB_USER = "postgres"
 DB_DATABASE = DB_USER
-DB_PASSWORD = "pereirawp2002"
+DB_PASSWORD = "1234"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 app = Flask(__name__)
