@@ -25,7 +25,7 @@ def list_accounts():
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         return render_template("index.html", cursor=cursor)
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
@@ -116,7 +116,7 @@ def list_category():
             cursor.execute(query)
             return render_template("category.html", cursor=cursor, input_category=request.args.get("input_category"))
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
@@ -144,7 +144,7 @@ def subcategories():
             cursor.execute(query, (category, category, category))
             return render_template("sub_categories.html", cursor=cursor, category=category, params=request.args)
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
@@ -189,7 +189,7 @@ def list_retailers():
             cursor.execute(query)
             return render_template("retailer.html", cursor=cursor, input_retailer=request.args.get("input_retailer"))
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
@@ -237,7 +237,7 @@ def alter_retailer():
             categorias = cursor.fetchall()
             return render_template("alter_retailer.html", cursor=resp, ivms=ivms, categorias=categorias, params=request.args)
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
@@ -273,7 +273,7 @@ def list_ivms():
             cursor.execute(query)
             return render_template("ivm.html", cursor=cursor)
     except Exception as e:
-        return str(e)  # Renders a page with the error.
+        return render_template("error.html", error_message=e)
     finally:
         dbConn.commit()
         cursor.close()
