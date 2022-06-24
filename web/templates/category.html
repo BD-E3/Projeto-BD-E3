@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-{% extends "base.html" %}
 
 
 <html lang="pt">
@@ -9,7 +8,7 @@
     </head>
     <body style="padding:20px">
         {% if cursor %}
-            {% block content %}
+           
             <form action="category" method="post">
                 <input type="submit" name="button" value="Voltar">
             </form>
@@ -56,25 +55,8 @@
                         </td>
                     </tr>
                     {% endif %}
-
                 </tbody>
             </table>
-            {% endblock %}
-
-            {% block scripts %}
-              <script>
-                $(document).ready(function () {
-                  $('#data').DataTable({
-                    columns: [
-                      null,
-                      {searchable: false},
-                      {orderable: false, searchable: false},
-                      {orderable: false, searchable: false},
-                      null],
-                  });
-                });
-              </script>
-            {% endblock %}
         {% else %}
             <p> Erro: ao obter dados da base de dados!</p>
         {% endif %}
