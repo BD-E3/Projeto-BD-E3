@@ -38,4 +38,4 @@ where er.ean is null;
 select er.ean
 from evento_reposicao er
 group by er.ean
-having max(er.tin) = min(er.ean);
+having max(er.tin) = min(er.tin);
